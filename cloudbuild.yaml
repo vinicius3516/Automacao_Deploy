@@ -1,0 +1,28 @@
+steps:
+  # Etapa 1: Fazer build da aplicação e criar um arquivo .tar.gz
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/gerenciador-tarefas'
+      - '.'
+
+  # Etapa 2: Fazer o push da imagem para o Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - 'gcr.io/$PROJECT_ID/gerenciador-tarefas'
+
+  # Etapa 3: Fazer deployment para o grupo de instâncias
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - compute
+      - instance-groups
+      - managed
+      - rolling-action
+      - start-update
+      - 'grupo-gerenciador-tarefas'
+      - '--version=gcr.io/$PROJECT_ID/gerenciador-tarefas'
+
+images:
+  - 'gcr.io/$PROJECT_ID/gerenciador-tarefas'
